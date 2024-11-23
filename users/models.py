@@ -32,6 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    num_goal_partner = models.IntegerField(default=0)
 
     groups = models.ManyToManyField(
         'auth.Group',
