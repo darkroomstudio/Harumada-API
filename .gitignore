@@ -1,24 +1,33 @@
-# General Python files
+# Environment variables
+.env
+.env.local
+.env.*.local
+.vercel
+
+# Python
 *.pyc
 __pycache__/
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
 
-# Django and DRF specific files
+# Django
 *.log
-local_settings.py
 db.sqlite3
-media/*
-static/*
+db.sqlite3-journal
+media/
+staticfiles/
+migrations/
 
-# Virtual environment
+# Virtual Environment
 venv/
+env/
+ENV/
 
-# IDE/Editor files
+# IDE
 .idea/
 .vscode/
 *.swp
+*.swo
 
-migrations/
-
-.env
+# Vercel
+.vercel/
