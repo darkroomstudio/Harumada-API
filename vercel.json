@@ -1,0 +1,14 @@
+{
+    "builds": [
+        {
+            "src": "harumada/wsgi.py",
+            "use": "@vercel/python"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "harumada/wsgi.py"
+        }
+    ]
+}
