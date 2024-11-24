@@ -142,6 +142,7 @@ class GoalViewSet(viewsets.ModelViewSet):
     def join_shared_goal(self, request):
         """Join a shared goal using invitation code"""
         invitation_code = request.data.get('invitation_code')
+        action = request.data.get('action', 'check')  # 'check' or 'accept'
         
         try:
             # Find the sharing invitation
@@ -150,31 +151,43 @@ class GoalViewSet(viewsets.ModelViewSet):
                 status='pending'
             )
             
-            # Get the original goal
-            original_goal = sharing.goal
+            # Get the original goal data
+            goal = sharing.goal
+            goal_data = self.get_serializer(goal).data
             
-            # Check if user is already part of this goal
-            if original_goal.user == request.user or \
-               original_goal.shares.filter(shared_to_user=request.user).exists():
+            if action == 'check':
+                # Just return goal info for user to decide
+                return Response({
+                    'message': 'Goal found',
+                    'goal': goal_data,
+                    'shared_by': sharing.shared_by_user.username,
+                    'requires_action': True
+                })
+                
+            elif action == 'accept':
+                # Check if user is already part of this goal
+                if goal.user == request.user or \
+                   goal.shares.filter(shared_to_user=request.user).exists():
+                    return Response(
+                        {'error': 'You are already part of this goal'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                # Update sharing status to accepted
+                sharing.status = 'accepted'
+                sharing.shared_to_user = request.user
+                sharing.save()
+                
+                return Response({
+                    'message': 'Successfully joined the shared goal',
+                    'goal': goal_data
+                })
+            
+            else:
                 return Response(
-                    {'error': 'You are already part of this goal'},
+                    {'error': 'Invalid action'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
-            # Update sharing status to accepted
-            sharing.status = 'accepted'
-            sharing.shared_to_user = request.user
-            sharing.save()
-            
-            # Return the original goal data
-            serializer = self.get_serializer(original_goal)
-            
-            return Response({
-                'message': 'Successfully joined the shared goal',
-                'goal': serializer.data,
-                'is_shared': True,
-                'original_goal_id': original_goal.id
-            })
             
         except GoalSharing.DoesNotExist:
             return Response(
