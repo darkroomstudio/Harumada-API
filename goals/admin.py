@@ -1,26 +1,66 @@
 from django.contrib import admin
-from .models import Goal
+from .models import Goal, GoalAttendance
 
 @admin.register(Goal)
 class GoalAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'user', 'status', 'duration', 'start_date', 'end_date')
-    list_filter = ('status', 'duration', 'created_at')
-    search_fields = ('title', 'description', 'user_email', 'user_username')
-    readonly_fields = ('created_at', 'updated_at')
-    ordering = ('-created_at',)
+    list_display = (
+        'id',
+        'title',
+        'user',
+        'duration',
+        'start_date',
+        'status',
+        'current_stage',
+        'progress_percentage',
+        'attendance_count',
+        'created_at'
+    )
+    
+    list_filter = (
+        'duration',
+        'status',
+        'current_stage',
+        'created_at'
+    )
+    
+    search_fields = (
+        'title',
+        'description',
+        'user__username'
+    )
+    
+    readonly_fields = (
+        'current_stage',
+        'next_stage',
+        'progress_percentage',
+        'created_at',
+        'updated_at'
+    )
 
     fieldsets = (
         ('Basic Information', {
             'fields': ('user', 'title', 'description', 'message')
         }),
-        ('Timeline', {
-            'fields': ('start_date', 'end_date', 'duration')
+        ('Duration Settings', {
+            'fields': ('duration', 'start_date')
         }),
-        ('Status', {
-            'fields': ('status',)
+        ('Progress Information', {
+            'fields': (
+                'current_stage',
+                'next_stage',
+                'progress_percentage',
+                'attendance_count'
+            )
         }),
-        ('Metadata', {
+        ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
-        })
+        }),
     )
+
+@admin.register(GoalAttendance)
+class GoalAttendanceAdmin(admin.ModelAdmin):
+    list_display = ('goal', 'user', 'date', 'created_at')
+    list_filter = ('date', 'user')
+    search_fields = ('goal__title', 'user__username')
+    date_hierarchy = 'date'
