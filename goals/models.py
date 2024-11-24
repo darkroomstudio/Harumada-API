@@ -8,27 +8,27 @@ User = get_user_model()
 
 class Goal(models.Model):
     DURATION_CHOICES = [
-        ('week', '1 Week'),
-        ('month', '1 Month'),
-        ('3months', '3 Months'),
-        ('6months', '6 Months'),
-        ('12months', '12 Months'),
-        ('unlimited', 'Unlimited'),
+        ('week', '일주일'),
+        ('month', '한 달'),
+        ('3months', '세 달'),
+        ('6months', '여섯 달'),
+        ('12months', '열두 달'),
+        ('unlimited', '기한 없음'),
     ]
 
     BOAT_STAGES = [
-        ('boat1', 'Boat1'),
-        ('boat2', 'Boat2'),
-        ('boat3', 'Boat3'),
-        ('boat4', 'Boat4'),
-        ('boat5', 'Boat5'),
-        ('boat6', 'Boat6')
+        ('boat1', '종이배'),
+        ('boat2', '뗏목'),
+        ('boat3', '나룻배'),
+        ('boat4', '돛단배'),
+        ('boat5', '범선'),
+        ('boat6', '해적선')
     ]
 
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('in_progress', 'In Progress'),
-        ('done', 'Done')
+        ('pending', '진행 예정'),
+        ('in_progress', '진행중'),
+        ('done', '완료됨')
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -302,6 +302,23 @@ class Goal(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.progress_percentage}%"
+
+    def get_day_count(self):
+        """Calculate current day count and total days"""
+        start_date = self.start_date
+        today = timezone.now().date()
+        
+        # Calculate elapsed days (current day count)
+        elapsed_days = (today - start_date).days + 1  # +1 to include start date
+        
+        # Get total days based on duration
+        total_days = self.get_duration_days()
+        
+        return {
+            'current_day': elapsed_days,
+            'total_days': total_days,
+            'duration_text': self.get_duration_display()  # '1 Week', '1 Month', etc.
+        }
 
 class GoalAttendance(models.Model):
     goal = models.ForeignKey(

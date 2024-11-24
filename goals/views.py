@@ -7,6 +7,7 @@ from .serializers import GoalSerializer
 from goal_sharing.models import GoalSharing
 from rest_framework.decorators import action
 from django.db.models import Q
+from datetime import datetime, timezone
 
 class GoalViewSet(viewsets.ModelViewSet):
     serializer_class = GoalSerializer
@@ -116,8 +117,8 @@ class GoalViewSet(viewsets.ModelViewSet):
 
         # Calculate statistics
         history = {}
-        total_days = 0
-        perfect_days = 0  # days where all users attended
+        total_days = len(attendance_dates)
+        perfect_days = 0
 
         for date_str, attendees in attendance_dates.items():
             history[date_str] = {
@@ -126,7 +127,6 @@ class GoalViewSet(viewsets.ModelViewSet):
                 'total_users': total_users,
                 'is_perfect': len(attendees) == total_users
             }
-            total_days += 1
             if len(attendees) == total_users:
                 perfect_days += 1
 

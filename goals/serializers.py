@@ -21,6 +21,7 @@ class GoalSerializer(serializers.ModelSerializer):
     next_boat_image = serializers.SerializerMethodField()
     progress_to_next = serializers.IntegerField(source='progress_to_next_stage', read_only=True)
     end_date = serializers.SerializerMethodField()
+    day_count = serializers.SerializerMethodField()
     
     class Meta:
         model = Goal
@@ -48,7 +49,8 @@ class GoalSerializer(serializers.ModelSerializer):
             'shared_with', 
             'original_goal_id',
             'created_at', 
-            'updated_at'
+            'updated_at',
+            'day_count',
         ]
         read_only_fields = [
             'user', 
@@ -90,3 +92,6 @@ class GoalSerializer(serializers.ModelSerializer):
     def get_end_date(self, obj):
         """Get the calculated end date"""
         return obj.get_end_date()
+
+    def get_day_count(self, obj):
+        return obj.get_day_count()
