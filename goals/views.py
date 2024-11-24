@@ -105,12 +105,37 @@ class GoalViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def attendance_history(self, request, pk=None):
-        """Get attendance history"""
+        """Get attendance history with day counts"""
         goal = self.get_object()
         original_goal = goal.get_original_goal()
+        attendance_dates = original_goal.attendance_dates or {}
+
+        # Get sharing info
+        sharing = original_goal.shares.filter(status='accepted').first()
+        total_users = 2 if sharing else 1
+
+        # Calculate statistics
+        history = {}
+        total_days = 0
+        perfect_days = 0  # days where all users attended
+
+        for date_str, attendees in attendance_dates.items():
+            history[date_str] = {
+                'attendees': attendees,
+                'count': len(attendees),
+                'total_users': total_users,
+                'is_perfect': len(attendees) == total_users
+            }
+            total_days += 1
+            if len(attendees) == total_users:
+                perfect_days += 1
+
         return Response({
             'original_goal_id': original_goal.id,
-            'history': original_goal.get_attendance_history()
+            'total_days': total_days,
+            'perfect_days': perfect_days,
+            'total_users': total_users,
+            'history': history
         })
 
     @action(detail=False, methods=['post'])
