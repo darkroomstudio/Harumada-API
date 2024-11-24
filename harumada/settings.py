@@ -128,6 +128,13 @@ else:
     }
 }
 
+if IS_VERCEL:
+    print(f"Database settings on Vercel:")
+    print(f"Host: {DATABASES['default']['HOST']}")
+    print(f"Port: {DATABASES['default']['PORT']}")
+    print(f"Name: {DATABASES['default']['NAME']}")
+    print(f"User: {DATABASES['default']['USER']}")
+
 # Supabase credentials
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY')
